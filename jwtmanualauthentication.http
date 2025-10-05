@@ -1,0 +1,6 @@
+@jwtmanualauthentication_HostAddress = http://localhost:5105
+
+GET {{jwtmanualauthentication_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
