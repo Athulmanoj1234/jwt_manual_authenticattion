@@ -6,7 +6,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Runtime.Intrinsics.Arm;
+using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace jwtmanualauthentication.Controllers
 {
@@ -18,9 +23,11 @@ namespace jwtmanualauthentication.Controllers
         public string? hashed;
         bool isLoggedIn;
         private ApplicationDbContext dbContext;
+        private readonly IConfiguration _configuration;
         
-        public UsersController(ApplicationDbContext dbContext) {
+        public UsersController(ApplicationDbContext dbContext, IConfiguration configuration) {
             this.dbContext = dbContext;
+            this._configuration = configuration;
         }
 
         [HttpPost("register")]
@@ -62,6 +69,31 @@ namespace jwtmanualauthentication.Controllers
                     isLoggedIn = BCrypt.Net.BCrypt.Verify(userDto.Password, user.Password);
                     if (isLoggedIn)
                     {
+                        var claims = new[]
+                            {
+                                new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),  //Subject (usually the user or principal)
+                                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),  //JWT ID (unique identifier for this token)
+                                new Claim("userId", userDto.Username.ToString())  
+                            };
+                        
+                        var key = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])
+                            );
+                        //Symmetric means same key is used for both sides
+                        //Symmetric sceurityKey means Represents a key used for signing/validating JWTs with the same secret
+                        var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                        //creating signin credentials: signin credentials tells the jwt middleware how to sign the token.
+                        //key → the symmetric key we just created.SecurityAlgorithms.HmacSha256 → uses HMAC SHA - 256 algorithm for signing.
+
+                        //creating the jwt token
+                        //JwtSecurityToken represents the actual token
+                        var token = new JwtSecurityToken(
+                            _configuration["Jwt:Issuer"],  //iss claim, identifies who issued the token (Jwt:Issuer)
+                            _configuration["Jwt:Audience"], //aud claim, identifies who the token is intended for (Jwt:Audience)
+                            claims, //payload data about the user
+                            expires: DateTime.UtcNow.AddMinutes(60), //DateTime.UtcNow (cordinated universal time ie gets the current date and time) and AddMinutes(minute) add extra minutes in this case extra 60 minutes added.
+                            signingCredentials: signIn //sign in credentials which earlier used to sign token
+                            );
                         return Ok();
                     }
                     else {

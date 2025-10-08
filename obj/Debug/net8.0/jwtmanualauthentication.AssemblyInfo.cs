@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("jwtmanualauthentication")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e7a32fdde43d59f85520985ed8919c71be7810a5")]
 [assembly: System.Reflection.AssemblyProductAttribute("jwtmanualauthentication")]
 [assembly: System.Reflection.AssemblyTitleAttribute("jwtmanualauthentication")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
