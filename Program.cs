@@ -1,4 +1,4 @@
-using Azure.Core;
+Ôªøusing Azure.Core;
 using jwtmanualauthentication.Data;
 using jwtmanualauthentication.Models.Enities;
 using Microsoft.AspNetCore.Authentication;
@@ -25,12 +25,12 @@ builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     //    Defines the default method the app uses to authenticate users.
-    //? Here, itís set to JwtBearerDefaults.AuthenticationScheme, meaning JWT Bearer tokens will be used.
+    //‚Üí Here, it‚Äôs set to JwtBearerDefaults.AuthenticationScheme, meaning JWT Bearer tokens will be used.
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     //DefaultChallengeScheme: Defines what happens when an unauthorized request is made(e.g., 401 Unauthorized).
-    //? Also set to JWT Bearer, meaning the system will challenge using JWT.
+    //‚Üí Also set to JWT Bearer, meaning the system will challenge using JWT.
 }).AddJwtBearer(options =>
-//This adds the JWT Bearer token handler ó the logic or method that reads and validates the JWT tokens sent by clients
+//This adds the JWT Bearer token handler ‚Äî the logic or method that reads and validates the JWT tokens sent by clients
 {
     //This object contains all the rules for validating an incoming JWT.
     options.TokenValidationParameters = new TokenValidationParameters
@@ -39,11 +39,11 @@ builder.Services.AddAuthentication(options =>
         //This validation prevents tokens from untrusted sources from being accepted.
         //ie the backend who issued tokens only should be given so if the token generates in this backend url and frontend gets the token and they sent to another backend who also accepts the token will be considered as unauthorised
         ValidateAudience = true,
-        // ie the frontend url which is given   Token is only accepted if aud matches this value.Think of audience as ìwho the token is for.î
+        // ie the frontend url which is given   Token is only accepted if aud matches this value.Think of audience as ‚Äúwho the token is for.‚Äù
         ValidateLifetime = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        //What it does: Validates the tokenís signature using the key you configured.Why it matters: Ensures the token wasnít tampered with and was signed by your trusted backend.
+        //What it does: Validates the token‚Äôs signature using the key you configured.Why it matters: Ensures the token wasn‚Äôt tampered with and was signed by your trusted backend.
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(builder.Configuration["Jwt:key"]))
     };
@@ -60,6 +60,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseAuthentication();
 
 app.UseHttpsRedirection();
 

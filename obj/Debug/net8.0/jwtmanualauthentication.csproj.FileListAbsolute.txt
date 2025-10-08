@@ -138,3 +138,5 @@ C:\Users\athul\source\repos\jwtmanualauthentication\jwtmanualauthentication\obj\
 C:\Users\athul\source\repos\jwtmanualauthentication\jwtmanualauthentication\obj\Debug\net8.0\jwtmanualauthentication.genruntimeconfig.cache
 C:\Users\athul\source\repos\jwtmanualauthentication\jwtmanualauthentication\obj\Debug\net8.0\ref\jwtmanualauthentication.dll
 C:\Users\athul\source\repos\jwtmanualauthentication\jwtmanualauthentication\bin\Debug\net8.0\BCrypt.Net-Next.dll
+C:\Users\athul\source\repos\jwtmanualauthentication\jwtmanualauthentication\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\athul\source\repos\jwtmanualauthentication\jwtmanualauthentication\obj\Debug\net8.0\jwtmanualauthentication.sourcelink.json

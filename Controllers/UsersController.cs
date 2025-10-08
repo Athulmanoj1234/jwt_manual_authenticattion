@@ -12,6 +12,7 @@ using System.Runtime.Intrinsics.Arm;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 
 namespace jwtmanualauthentication.Controllers
 {
@@ -94,7 +95,11 @@ namespace jwtmanualauthentication.Controllers
                             expires: DateTime.UtcNow.AddMinutes(60), //DateTime.UtcNow (cordinated universal time ie gets the current date and time) and AddMinutes(minute) add extra minutes in this case extra 60 minutes added.
                             signingCredentials: signIn //sign in credentials which earlier used to sign token
                             );
-                        return Ok();
+
+                        //now we are going to write the jwt token and pass it to the client
+                        string tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
+                        //JwtSecurityTokenHandler It is responsible for: Creating JWT tokens Reading / validating JWT tokens Converting them to / from string format
+                        return Ok(new { Token = tokenValue });  //sending the response as token to frontend
                     }
                     else {
                         return BadRequest();
