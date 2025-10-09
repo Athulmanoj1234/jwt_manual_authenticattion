@@ -1,8 +1,10 @@
 ﻿using Azure.Core;
 using jwtmanualauthentication.Data;
+using jwtmanualauthentication.middleware;
 using jwtmanualauthentication.Models.Enities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Net.NetworkInformation;
@@ -60,6 +62,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+//app.Use(async (context, next) => {
+//    Console.WriteLine("the the request params is:" + context.Request.Path);
+//    await next();
+//});
+
+//app.UseMiddleware<LoggingMiddleware>();
+
+//app.UseMiddleware<AccessTokenMiddleware>();
+
+app.UseWhen(context => context.Request.Path.StartsWithSegments("/WeatherForecast"),
+    api => {
+        api.UseMiddleware<AccessTokenMiddleware>();
+    });
 
 app.UseAuthentication();
 
