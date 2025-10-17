@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Dynamic;
 using System.Net.NetworkInformation;
 using System.Text;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
@@ -35,6 +36,12 @@ builder.Services.AddAuthentication(options =>
 //This adds the JWT Bearer token handler — the logic or method that reads and validates the JWT tokens sent by clients
 {
     //This object contains all the rules for validating an incoming JWT.
+    options.SaveToken = true;
+    //this is enabled because backend needs to receive the tokens like this 
+    //var accessToken = await HttpContext.GetTokenAsync("access_token");
+    // this is particularly useful when : You need to refresh tokens.
+    //    You need to log or audit the exact token used.
+    //You want to reuse the token for downstream services (like calling another API).
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -54,6 +61,8 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
      options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -72,7 +81,7 @@ if (app.Environment.IsDevelopment())
 
 //app.UseMiddleware<AccessTokenMiddleware>();
 
-app.UseWhen(context => context.Request.Path.StartsWithSegments("/WeatherForecast"),
+app.UseWhen(context => context.Request.Path.StartsWithSegments("/WeatherForecast"), //middleware appl;ied for specific route
     api => {
         api.UseMiddleware<AccessTokenMiddleware>();
     });

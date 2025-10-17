@@ -1,17 +1,20 @@
 ﻿using jwtmanualauthentication.Data;
 using jwtmanualauthentication.Models;
 using jwtmanualauthentication.Models.Enities;
+using jwtmanualauthentication.services;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Runtime.Intrinsics.Arm;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 
 namespace jwtmanualauthentication.Controllers
@@ -25,10 +28,12 @@ namespace jwtmanualauthentication.Controllers
         bool isLoggedIn;
         private ApplicationDbContext dbContext;
         private readonly IConfiguration _configuration;
+        private readonly AuthService _authService;
         
-        public UsersController(ApplicationDbContext dbContext, IConfiguration configuration) {
+        public UsersController(ApplicationDbContext dbContext, IConfiguration configuration, AuthService authService) {
             this.dbContext = dbContext;
             this._configuration = configuration;
+            this._authService = authService;
         }
 
         [HttpPost("register")]
@@ -59,7 +64,7 @@ namespace jwtmanualauthentication.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult Login(UserDto userDto) {
+        public async Task<IActionResult> Login(UserDto userDto) {
             try
             {
                 var user = dbContext.Users.SingleOrDefault(doc => doc.Username == userDto.Username);
@@ -74,9 +79,9 @@ namespace jwtmanualauthentication.Controllers
                             {
                                 new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),  //Subject (usually the user or principal)
                                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),  //JWT ID (unique identifier for this token)
-                                new Claim("userId", userDto.Username.ToString())  
+                                new Claim("userId", userDto.Username.ToString())
                             };
-                        
+
                         var key = new SymmetricSecurityKey(
                             Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])
                             );
@@ -98,10 +103,17 @@ namespace jwtmanualauthentication.Controllers
 
                         //now we are going to write the jwt token and pass it to the client
                         string tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
+                        string refreshToken = await _authService.GenerateAndSaveRefreshTokenAsync(user);
+
                         //JwtSecurityTokenHandler It is responsible for: Creating JWT tokens Reading / validating JWT tokens Converting them to / from string format
-                        return Ok(new { Token = tokenValue });  //sending the response as token to frontend
-                    }
-                    else {
+                        return Ok(new TokenResponseDto()
+                        {
+                            AccessToken = tokenValue,
+                            RefreshToken = refreshToken
+                        });
+                        //sending the response as token to frontend
+                    } else
+                    {
                         return BadRequest();
                     }
                 }
