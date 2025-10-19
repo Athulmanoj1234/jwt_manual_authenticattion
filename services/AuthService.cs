@@ -2,6 +2,7 @@
 using jwtmanualauthentication.Migrations;
 using jwtmanualauthentication.Models;
 using jwtmanualauthentication.Models.Enities;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 
@@ -46,7 +47,20 @@ namespace jwtmanualauthentication.services
                 return null;
             }
             // logic to create accessToken and sent it by response
-            return 
+            return null; //add refresh token 
+        }
+
+        public async Task<TokenResponseDto> RefreshTokenAsync(TokenRequestDto request) {
+            var user = await ValidateRefreshTokenAsync(request.UserId, request.RefreshToken);
+
+            if (user is null) {
+                return null;
+            }
+
+            return new TokenResponseDto() {
+                AccessToken = ,//create access token,
+                RefreshToken = await GenerateAndSaveRefreshTokenAsync(user),
+            };
         }
     }
 }

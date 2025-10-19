@@ -109,7 +109,15 @@ namespace jwtmanualauthentication.Controllers
                         return Ok(new TokenResponseDto()
                         {
                             AccessToken = tokenValue,
-                            RefreshToken = refreshToken
+                            //context.Response.Cookies.Append("MyCookieName", "MyCookieValue", new CookieOptions
+                            //{
+                            //    Expires = DateTimeOffset.UtcNow.AddDays(7), // Set expiration
+                            //    Path = "/", // Set path
+                            //    SameSite = SameSiteMode.Lax, // Set SameSite policy
+                            //    Secure = true, // Ensure cookie is only sent over HTTPS
+                            //    HttpOnly = true // Prevent client-side script access
+                            //});
+                            RefreshToken = refreshToken  //sent refresh token as cookies
                         });
                         //sending the response as token to frontend
                     } else
@@ -117,11 +125,20 @@ namespace jwtmanualauthentication.Controllers
                         return BadRequest();
                     }
                 }
-                
             }
             catch (Exception e) {
                 return StatusCode(500);
             }
+        }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh(TokenRequestDto request) {
+            var result = await _authService.RefreshTokenAsync(request);
+
+            if (result is null || result.AccessToken is null || result.RefreshToken is null) {
+                return Unauthorized();
+            }
+            return Ok(result);
         }
 
         //public 
