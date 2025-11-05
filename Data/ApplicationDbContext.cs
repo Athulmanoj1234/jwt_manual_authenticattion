@@ -14,5 +14,9 @@ namespace jwtmanualauthentication.Data
         }
 
         public DbSet<User> Users { get; set; }
+
+        public DbSet<Actor> Actors { get; set; }
+        public DbSet<Movie> Movies { get; set; }
+        public DbSet<ActorMovie> ActorMovies { get; set; }
     }
 }

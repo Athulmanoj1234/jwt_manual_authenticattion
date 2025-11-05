@@ -73,6 +73,7 @@ namespace jwtmanualauthentication.Controllers
                     return BadRequest();
                 } else {
                     isLoggedIn = BCrypt.Net.BCrypt.Verify(userDto.Password, user.Password);
+                    
                     if (isLoggedIn)
                     {
                         var claims = new[]

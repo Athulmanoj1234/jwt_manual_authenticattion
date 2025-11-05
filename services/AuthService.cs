@@ -11,8 +11,11 @@ namespace jwtmanualauthentication.services
     public class AuthService
     {
         private ApplicationDbContext _dbContext;
-        public AuthService(ApplicationDbContext dbContext) {
+        private IConfiguration _configuration;
+        public AuthService(ApplicationDbContext dbContext, IConfiguration configuration)
+        {
             _dbContext = dbContext;
+            _configuration = configuration;
         }
 
         public string GenerateRefreshToken() {
@@ -58,7 +61,7 @@ namespace jwtmanualauthentication.services
             }
 
             return new TokenResponseDto() {
-                AccessToken = ,//create access token,
+                AccessToken = this._configuration["AccessToken"],//create access token,
                 RefreshToken = await GenerateAndSaveRefreshTokenAsync(user),
             };
         }
