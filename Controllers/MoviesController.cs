@@ -1,6 +1,7 @@
 ﻿using jwtmanualauthentication.Data;
 using jwtmanualauthentication.Models;
 using jwtmanualauthentication.Models.Enities;
+using jwtmanualauthentication.Respositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,11 +12,13 @@ namespace jwtmanualauthentication.Controllers
     [ApiController]
     public class MoviesController : ControllerBase
     {
-        public ApplicationDbContext _dbContext { get; set; }
+        public ApplicationDbContext _dbContext;
+        public IMovieRepository _movieRepository;
 
-        public MoviesController(ApplicationDbContext DbContext)
+        public MoviesController(ApplicationDbContext DbContext, IMovieRepository movieRepository)
         {
             this._dbContext = DbContext;
+            this._movieRepository = movieRepository;
         }
 
         [HttpPost("AddActors")]
@@ -91,5 +94,14 @@ namespace jwtmanualauthentication.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+
+        [HttpGet("getMovieByid/{id:int}")]
+        
+        public async Task<IActionResult> GetMoviebyId(int id)
+        {
+            var result = await this._movieRepository.getMovieById(id);
+            return Ok(result);
+        }
+
     }
 }

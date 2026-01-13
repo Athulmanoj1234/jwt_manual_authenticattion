@@ -1,5 +1,79 @@
 [
   {
+    "ContainingType": "jwtmanualauthentication.Controllers.MoviesController",
+    "Method": "CreateActorMovie",
+    "RelativePath": "api/Movies/AddActorMovie",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ActorMovie",
+        "Type": "jwtmanualauthentication.Models.ActorMovieDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "jwtmanualauthentication.Controllers.MoviesController",
+    "Method": "CreateActors",
+    "RelativePath": "api/Movies/AddActors",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Actor",
+        "Type": "jwtmanualauthentication.Models.ActorDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "jwtmanualauthentication.Controllers.MoviesController",
+    "Method": "CreateMovies",
+    "RelativePath": "api/Movies/AddMovies",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Movie",
+        "Type": "jwtmanualauthentication.Models.MoviesDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "jwtmanualauthentication.Controllers.MoviesController",
+    "Method": "GetActorMovie",
+    "RelativePath": "api/Movies/GetActorMovies",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "jwtmanualauthentication.Controllers.MoviesController",
+    "Method": "GetMoviebyId",
+    "RelativePath": "api/Movies/getMovieByid/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "jwtmanualauthentication.Controllers.UsersController",
     "Method": "Login",
     "RelativePath": "api/Users/login",
@@ -10,6 +84,22 @@
       {
         "Name": "userDto",
         "Type": "jwtmanualauthentication.Models.UserDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "jwtmanualauthentication.Controllers.UsersController",
+    "Method": "Refresh",
+    "RelativePath": "api/Users/refresh",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "jwtmanualauthentication.Models.TokenRequestDto",
         "IsRequired": true
       }
     ],

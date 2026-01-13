@@ -1,7 +1,9 @@
 ﻿using Azure.Core;
+using jwtmanualauthentication;
 using jwtmanualauthentication.Data;
 using jwtmanualauthentication.middleware;
 using jwtmanualauthentication.Models.Enities;
+using jwtmanualauthentication.Respositories;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -16,10 +18,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+//var decoraterServices = new ServiceCollection();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddMemoryCache();
+
+builder.Services.AddScoped<IMovieRepository, MovieRepository>();
+//builder.Services.AddScoped<IMovieRepository, CachedMovieRepository>();  // now if someone injects the IMemberRepository in the constructor then they will get instance of CachedMovieRepository
+builder.Services.Decorate<IMovieRepository, CachedMovieRepository>();
 
 //registering jwt service
 //This registers the authentication service in the dependency injection (DI) container.
