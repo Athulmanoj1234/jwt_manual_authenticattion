@@ -64,15 +64,15 @@ namespace jwtmanualauthentication.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(UserDto userDto) {
+        public async Task<IActionResult> Login([FromBody] UserDto userDto) {
             try
             {
-                var user = dbContext.Users.SingleOrDefault(doc => doc.Username == userDto.Username);
+                var user = await this.dbContext.Users.FirstOrDefaultAsync(doc => doc.Username == userDto.Username);
                 if (user is null)
                 {
                     return BadRequest();
                 } else {
-                    isLoggedIn = BCrypt.Net.BCrypt.Verify(userDto.Password, user.Password);
+                    isLoggedIn = userDto.Password == user.Password;
                     
                     if (isLoggedIn)
                     {
@@ -104,22 +104,29 @@ namespace jwtmanualauthentication.Controllers
 
                         //now we are going to write the jwt token and pass it to the client
                         string tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
-                        string refreshToken = await _authService.GenerateAndSaveRefreshTokenAsync(user);
+                        string refreshToken = await this._authService.GenerateAndSaveRefreshTokenAsync(user);
 
-                        //JwtSecurityTokenHandler It is responsible for: Creating JWT tokens Reading / validating JWT tokens Converting them to / from string format
-                        return Ok(new TokenResponseDto()
+                        var result = new TokenResponseDto
                         {
                             AccessToken = tokenValue,
-                            //context.Response.Cookies.Append("MyCookieName", "MyCookieValue", new CookieOptions
-                            //{
-                            //    Expires = DateTimeOffset.UtcNow.AddDays(7), // Set expiration
-                            //    Path = "/", // Set path
-                            //    SameSite = SameSiteMode.Lax, // Set SameSite policy
-                            //    Secure = true, // Ensure cookie is only sent over HTTPS
-                            //    HttpOnly = true // Prevent client-side script access
-                            //});
-                            RefreshToken = refreshToken  //sent refresh token as cookies
-                        });
+                            RefreshToken = refreshToken,
+                        };
+
+                        //JwtSecurityTokenHandler It is responsible for: Creating JWT tokens Reading / validating JWT tokens Converting them to / from string format
+                        //return Ok(new TokenResponseDto
+                        //{
+                        //    AccessToken = tokenValue,
+                        //    //context.Response.Cookies.Append("MyCookieName", "MyCookieValue", new CookieOptions
+                        //    //{
+                        //    //    Expires = DateTimeOffset.UtcNow.AddDays(7), // Set expiration
+                        //    //    Path = "/", // Set path
+                        //    //    SameSite = SameSiteMode.Lax, // Set SameSite policy
+                        //    //    Secure = true, // Ensure cookie is only sent over HTTPS
+                        //    //    HttpOnly = true // Prevent client-side script access
+                        //    //});
+                        //    RefreshToken = refreshToken  //sent refresh token as cookies
+                        //});
+                        return Ok(result);
                         //sending the response as token to frontend
                     } else
                     {

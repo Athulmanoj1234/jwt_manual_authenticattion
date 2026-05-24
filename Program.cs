@@ -4,6 +4,7 @@ using jwtmanualauthentication.Data;
 using jwtmanualauthentication.middleware;
 using jwtmanualauthentication.Models.Enities;
 using jwtmanualauthentication.Respositories;
+using jwtmanualauthentication.services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -24,6 +25,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<AuthService>();
 builder.Services.AddMemoryCache();
 
 builder.Services.AddScoped<IMovieRepository, MovieRepository>();

@@ -2,7 +2,7 @@
 {
     public class TokenResponseDto
     {
-        public required string AccessToken;
-        public required string RefreshToken;
+        public string AccessToken { get; set; }
+        public string RefreshToken { get; set; }
     }
 }
