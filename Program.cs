@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using jwtmanualauthentication;
+using jwtmanualauthentication.AuthorizationHandler;
 using jwtmanualauthentication.Data;
 using jwtmanualauthentication.middleware;
 using jwtmanualauthentication.Models.Enities;
@@ -7,6 +8,7 @@ using jwtmanualauthentication.Respositories;
 using jwtmanualauthentication.services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -31,6 +33,12 @@ builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IMovieRepository, MovieRepository>();
 //builder.Services.AddScoped<IMovieRepository, CachedMovieRepository>();  // now if someone injects the IMemberRepository in the constructor then they will get instance of CachedMovieRepository
 builder.Services.Decorate<IMovieRepository, CachedMovieRepository>();
+
+//<summary>add custom authorization handler and register it as a singleton service</summary>
+builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+
+//<summary>this is because everytime when new permission is added we need to add new polcy inside program.cs here is the policy is not there it is added by permission name in authorization attribute</summary>
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 
 //registering jwt service
 //This registers the authentication service in the dependency injection (DI) container.

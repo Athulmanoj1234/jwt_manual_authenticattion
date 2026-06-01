@@ -1,4 +1,5 @@
-﻿using jwtmanualauthentication.Data;
+﻿using jwtmanualauthentication.Atttributes;
+using jwtmanualauthentication.Data;
 using jwtmanualauthentication.Models;
 using jwtmanualauthentication.Models.Enities;
 using jwtmanualauthentication.services;
@@ -29,15 +30,17 @@ namespace jwtmanualauthentication.Controllers
         private ApplicationDbContext dbContext;
         private readonly IConfiguration _configuration;
         private readonly AuthService _authService;
-        
-        public UsersController(ApplicationDbContext dbContext, IConfiguration configuration, AuthService authService) {
+
+        public UsersController(ApplicationDbContext dbContext, IConfiguration configuration, AuthService authService)
+        {
             this.dbContext = dbContext;
             this._configuration = configuration;
             this._authService = authService;
         }
 
         [HttpPost("register")]
-        public IActionResult Register(UserDto userDto) {
+        public IActionResult Register(UserDto userDto)
+        {
             this.salt = RandomNumberGenerator.GetBytes(128 / 8);   //goes into GetBytes(128 / 8) GetBytes(n) n number of arrays
             //this.hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
             //    password: userDto.Password!,
@@ -58,22 +61,26 @@ namespace jwtmanualauthentication.Controllers
                 dbContext.SaveChanges();
                 return Ok(user);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 return StatusCode(500);
             }
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] UserDto userDto) {
+        public async Task<IActionResult> Login([FromBody] UserDto userDto)
+        {
             try
             {
                 var user = await this.dbContext.Users.FirstOrDefaultAsync(doc => doc.Username == userDto.Username);
                 if (user is null)
                 {
                     return BadRequest();
-                } else {
+                }
+                else
+                {
                     isLoggedIn = userDto.Password == user.Password;
-                    
+
                     if (isLoggedIn)
                     {
                         var claims = new[]
@@ -128,27 +135,41 @@ namespace jwtmanualauthentication.Controllers
                         //});
                         return Ok(result);
                         //sending the response as token to frontend
-                    } else
+                    }
+                    else
                     {
                         return BadRequest();
                     }
                 }
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 return StatusCode(500);
             }
         }
 
         [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh(TokenRequestDto request) {
+        public async Task<IActionResult> Refresh(TokenRequestDto request)
+        {
             var result = await _authService.RefreshTokenAsync(request);
 
-            if (result is null || result.AccessToken is null || result.RefreshToken is null) {
+            if (result is null || result.AccessToken is null || result.RefreshToken is null)
+            {
                 return Unauthorized();
             }
             return Ok(result);
         }
 
-        //public 
+        [HasPermission(Permissions.CanInspectUser)] 
+        [HttpGet("Get-User/{id}")]
+        public async Task<IActionResult> GetUser(Guid id)
+        {
+            {
+                var result = await this.dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
+                return Ok(result);
+            }
+
+            //public 
+        }
     }
 }
