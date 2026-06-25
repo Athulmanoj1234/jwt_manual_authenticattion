@@ -11,10 +11,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualBasic;
 using System.Dynamic;
 using System.Net.NetworkInformation;
 using System.Text;
+using System.Text.Json;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +32,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddMemoryCache();
+//builder.Services.AddDistributedMemoryCache();   use it when not connecting to redis to use cache
+
+builder.Services.AddStackExchangeRedisCache(redisOptions =>
+{
+    string connection = builder.Configuration.GetConnectionString("Redis");
+    redisOptions.Configuration = connection;
+});
 
 builder.Services.AddScoped<IMovieRepository, MovieRepository>();
 //builder.Services.AddScoped<IMovieRepository, CachedMovieRepository>();  // now if someone injects the IMemberRepository in the constructor then they will get instance of CachedMovieRepository
@@ -112,5 +122,31 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapGet("user/{id}", async (Guid id, ApplicationDbContext _dbContext, IDistributedCache cache, CancellationToken ct) => {
+
+    //firsts fetch the string using the cache key
+    var key = $"user-{id}";
+    
+    try {
+        var user = await cache.GetOrCreateAsync(
+            key,
+            async (token) =>
+            {
+                var user = await GetUserAsync();
+                return user;
+            },
+            ct);
+        return Results.Ok(user);
+    }
+    catch (Exception ex) {
+        return Results.Problem(ex.Message);
+    }
+    
+     async Task<User> GetUserAsync() {
+        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
+        return user;
+    }
+});
 
 app.Run();

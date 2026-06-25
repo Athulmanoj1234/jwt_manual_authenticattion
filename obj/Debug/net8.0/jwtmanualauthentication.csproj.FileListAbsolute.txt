@@ -146,3 +146,8 @@ C:\Users\athul\source\repos\jwtmanualauthentication\jwtmanualauthentication\bin\
 C:\Users\athul\source\repos\jwtmanualauthentication\jwtmanualauthentication\bin\Debug\net8.0\System.Text.Encodings.Web.dll
 C:\Users\athul\source\repos\jwtmanualauthentication\jwtmanualauthentication\bin\Debug\net8.0\System.Text.Json.dll
 C:\Users\athul\source\repos\jwtmanualauthentication\jwtmanualauthentication\bin\Debug\net8.0\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
+C:\Users\athul\source\repos\jwtmanualauthentication\jwtmanualauthentication\bin\Debug\net8.0\Microsoft.Extensions.Caching.StackExchangeRedis.dll
+C:\Users\athul\source\repos\jwtmanualauthentication\jwtmanualauthentication\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\athul\source\repos\jwtmanualauthentication\jwtmanualauthentication\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
+C:\Users\athul\source\repos\jwtmanualauthentication\jwtmanualauthentication\bin\Debug\net8.0\Pipelines.Sockets.Unofficial.dll
+C:\Users\athul\source\repos\jwtmanualauthentication\jwtmanualauthentication\bin\Debug\net8.0\StackExchange.Redis.dll

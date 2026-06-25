@@ -1,4 +1,6 @@
-﻿namespace jwtmanualauthentication.Models.Enities
+﻿using System.Text.Json.Serialization;
+
+namespace jwtmanualauthentication.Models.Enities
 {
     public class User
         {
@@ -8,7 +10,6 @@
 
             //adding refresh tokens to create new access token when the old access token expires
             public string? RefreshToken { get; set; } //intially refresh token will be null
-            public ICollection<Role> Roles { get; set; }
             public DateTime? RefreshTokenExpirytime { get; set; }  //setting the expiry of refresh token
         }
  }
