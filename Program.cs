@@ -12,12 +12,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualBasic;
 using System.Dynamic;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.Json;
+using ZiggyCreatures.Caching.Fusion;
+using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
+using ZiggyCreatures.Caching.Fusion.Serialization.SystemTextJson;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,6 +43,22 @@ builder.Services.AddStackExchangeRedisCache(redisOptions =>
     string connection = builder.Configuration.GetConnectionString("Redis");
     redisOptions.Configuration = connection;
 });
+
+//implementing the fusion cache
+builder.Services
+    .AddFusionCache() //registered fusion cache service to the container and added l1 cache ie the inmemory cache
+    .WithDefaultEntryOptions(options =>
+    { // so we are setting expiration in the l1 cache and in the l2(redis)
+        options.Duration = TimeSpan.FromMinutes(2);
+        options.FactorySoftTimeout = TimeSpan.FromMilliseconds(100); // upto 100 milliseconds only the factory function can be executed after that give up if there is a stale value ie the backup value.
+    })
+    .WithDistributedCache(_ => // added l2 cache ie the distributed cache
+    {
+        var options = new RedisCacheOptions { Configuration = builder.Configuration.GetConnectionString("Redis") }; //we use redis for the distrributed cache
+        return new RedisCache(options);
+    }).WithSerializer(new FusionCacheSystemTextJsonSerializer()) // autoimatically serialize the cache entries from objects
+    .WithBackplane(new RedisBackplane(new RedisBackplaneOptions { Configuration = builder.Configuration.GetConnectionString("Redis") }));
+
 
 builder.Services.AddScoped<IMovieRepository, MovieRepository>();
 //builder.Services.AddScoped<IMovieRepository, CachedMovieRepository>();  // now if someone injects the IMemberRepository in the constructor then they will get instance of CachedMovieRepository
@@ -123,6 +143,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// implementing distributed cache
 app.MapGet("user/{id}", async (Guid id, ApplicationDbContext _dbContext, IDistributedCache cache, CancellationToken ct) => {
 
     //firsts fetch the string using the cache key
@@ -148,5 +169,45 @@ app.MapGet("user/{id}", async (Guid id, ApplicationDbContext _dbContext, IDistri
         return user;
     }
 });
+
+//implementing fusion cache
+app.MapGet("users/{id}", async (Guid id, ApplicationDbContext _dbContext, IFusionCache cache, CancellationToken ct) => {
+
+    var key = $"user-{id}";
+    
+    //implementing the cache value
+    var value = await cache.GetOrSetAsync<User>(
+        key,
+        async _ => {
+            return await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
+        },
+        tags: ["users"], // implement tag because it is a new feature in the hybrid cache
+        token: ct);
+    if (value != null) {
+        return Results.Ok(value);
+    }
+    return Results.NotFound();
+});
+
+//next testing the put request for removing the cache entry for distributed systems
+app.MapPut("updateUserName/{id}", async (Guid id, string UserName, ApplicationDbContext _dbContext, IFusionCache cache, CancellationToken ct) => {
+
+    var key = $"user-{id}";
+    //first update in the db
+
+    try
+    {
+        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
+        user.Username = UserName;
+        await _dbContext.SaveChangesAsync(ct);
+
+        await cache.SetAsync(key, user, token: ct); //now the other server inmemery cache data will get removed and invalidate add new data entry
+        return Results.Ok(user);
+    }
+    catch (Exception ex) {
+        return Results.NotFound();
+    }
+});
+
 
 app.Run();
