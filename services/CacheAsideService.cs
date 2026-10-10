@@ -40,8 +40,13 @@ namespace jwtmanualauthentication.services
                 return default;
             }
             // if user data does not present in the cache then take from the db anb convert it into string and write data to the cache
-
+            // if first thread is entered and it has the loack then performs database opeeration and it should perform the database operation 
+            // and should be exited before 500ms otherwise for when second thread enters and there timeout loases and they will not gert the lock
             bool hasLock = await semaphore.WaitAsync(500);
+
+            // The variable hasLock becomes false only when both of these conditions happen at the same 
+            // time:The 500-millisecond waiting time completely runs out (times out).The key
+            // is still held by another thread, meaning the counter is still 0 and no key was given to the waiting thread.
 
             if (!hasLock) {
                 return default;
